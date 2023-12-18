@@ -11,7 +11,7 @@ app = Flask(__name__)
 def index():
     # Read CSV data (replace 'your_data.csv' with your actual CSV file)
     csv_path = 'resources/transactions.csv'
-    trasnactionsDf = pd.read_csv(csv_path)
+    transactions_df = pd.read_csv(csv_path)
 
     
 
@@ -23,27 +23,33 @@ def index():
     plots = []
 
 
-    violin_polt = sns.violinplot(ax=axes[0, 0], data=trasnactionsDf, x='Stock Ticker of Retailer', y='Transaction Amount')
-    scatter_plot = sns.scatterplot(ax=axes[0, 1], data=trasnactionsDf, x='Stock Ticker of Retailer', y='Transaction Amount')
-    barplot = sns.barplot(ax=axes[1, 0], data=trasnactionsDf, x='Stock Ticker of Retailer', y='Transaction Amount')
-    box_plot = sns.boxplot(ax=axes[1, 1], data=trasnactionsDf, x='Stock Ticker of Retailer', y='Transaction Amount')
-
-    plots.append(violin_polt)
-    plots.append(scatter_plot)
-    plots.append(barplot)
-    plots.append(box_plot)
-
-    
-
-    # Save all plots to BytesIO objects
     img_bytes_list = []
-    for plot in plots:
+    
+    for _ in range(4):  # Create 4 different plots
+        fig, ax = plt.subplots(2, 2, figsize=(6, 4))
+
+        if len(plots) == 0:
+            fig.suptitle('Revenue Distribution by Retailer')
+
+        # Choose a different seaborn plot type for each iteration
+        if len(plots) == 0:
+            plot = sns.violinplot(ax=ax[0,0], data=transactions_df, x='Stock Ticker of Retailer', y='Transaction Amount')
+        elif len(plots) == 1:
+            plot = sns.scatterplot(ax=ax[0,1], data=transactions_df, x='Stock Ticker of Retailer', y='Transaction Amount')
+        elif len(plots) == 2:
+            plot = sns.barplot(ax=ax[1,0], data=transactions_df, x='Stock Ticker of Retailer', y='Transaction Amount')
+        else:
+            plot = sns.boxplot(ax=ax[1,1], data=transactions_df, x='Stock Ticker of Retailer', y='Transaction Amount')
+
+        plots.append(plot)
 
         img_bytes = BytesIO()
         fig.savefig(img_bytes, format='png')
         img_bytes.seek(0)
         # Encode the image bytes as base64
         img_bytes_list.append(base64.b64encode(img_bytes.read()).decode('utf-8'))
+
+        print(plots)
 
 
     # Render the HTML template with the list of embedded images
