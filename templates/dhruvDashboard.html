@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Transaction Dashboard</title>
+  <!-- Link to Chart.js library -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      background-color: #f4f4f4;
+    }
+
+    #dashboard {
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+      width: 80%;
+      max-width: 1200px;
+      margin: auto;
+      box-sizing: border-box;
+      overflow: hidden;
+      text-align: center;
+    }
+
+    canvas {
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div id="dashboard">
+    <h1>Transaction Dashboard</h1>
+
+    <!-- File input for uploading CSV file -->
+    <input type="file" id="fileInput" accept=".csv" />
+    
+    <!-- Chart containers -->
+    <div>
+      <canvas id="chart1" width="400" height="200"></canvas>
+    </div>
+    <div>
+      <canvas id="chart2" width="400" height="200"></canvas>
+    </div>
+    <div>
+      <canvas id="chart3" width="400" height="200"></canvas>
+    </div>
+    <div>
+      <canvas id="chart4" width="400" height="200"></canvas>
+    </div>
+
+    <!-- JavaScript to read local CSV file and create charts -->
+    <script>
+      // Function to read a local CSV file
+      function readCSV(file, callback) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const csv = e.target.result;
+          const data = processData(csv);
+          callback(data);
+        };
+        reader.readAsText(file);
+      }
+
+      // Function to process CSV data
+      function processData(csv) {
+        const rows = csv.split('\n');
+        const labels = rows[0].split(','); // Assuming the first row contains labels
+
+        // Assuming data starts from the second row
+        const values = rows.slice(1).map(row => parseFloat(row.split(',')[1]));
+
+        return { labels, values };
+      }
+
+      // Function to create a chart
+      function createChart(ctx, data, label) {
+        new Chart(ctx, {
+          type: 'bar',
+          data: {
+            labels: data.labels,
+            datasets: [{
+              label: label,
+              data: data.values,
+              backgroundColor: 'rgba(75, 192, 192, 0.2)',
+              borderColor: 'rgba(75, 192, 192, 1)',
+              borderWidth: 1
+            }]
+          },
+          options: {
+            scales: {
+              y: {
+                beginAtZero: true
+              }
+            }
+          }
+        });
+      }
+
+      // Handle file input change event
+      document.getElementById('fileInput').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+
+        // Read CSV file and create charts
+        readCSV(file, function(data) {
+          createChart(document.getElementById('chart1'), data, 'Amazon');
+          createChart(document.getElementById('chart2'), data, 'Home Depot');
+          createChart(document.getElementById('chart3'), data, 'Walmart');
+          createChart(document.getElementById('chart4'), data, 'Target');
+        });
+      });
+    </script>
+  </div>
+</body>
+</html>

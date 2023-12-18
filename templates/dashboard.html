@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seaborn Visualizations</title>
+</head>
+<body>
+    <h1>Seaborn Visualizations</h1>
+
+    {% for img_base64 in img_bytes_list %}
+        <img src="data:image/png;base64,{{ img_base64 }}" alt="Seaborn Visualization">
+        <hr>
+    {% endfor %}
+</body>
+</html>
