@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request, redirect, url_for
 import seaborn as sns
 import matplotlib.pyplot as plt
 from io import BytesIO
@@ -7,52 +7,63 @@ import pandas as pd
 
 app = Flask(__name__)
 
-@app.route('/')
-def index():
-    # Read CSV data (replace 'your_data.csv' with your actual CSV file)
+# Dummy username and password (replace with a proper authentication mechanism)
+correct_username = "user"
+correct_password = "password"
+
+@app.route('/', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        # Get the form data
+        username = request.form['username']
+        password = request.form['password']
+
+        # Dummy authentication (replace with a proper authentication mechanism)
+        if username == correct_username and password == correct_password:
+            # Redirect to the dashboard page if authentication is successful
+            return redirect(url_for('dashboard.html'))
+
+    # Render the login page
+    return render_template('login.html')
+
+@app.route('/dashboard')
+def dashboard():
     csv_path = 'resources/transactions.csv'
     transactions_df = pd.read_csv(csv_path)
 
     
 
-    fig, axes = plt.subplots(2, 2, figsize=(18, 10))
-
-    fig.suptitle('Revenue Distribution by Retailer')
-
     # Create multiple Seaborn visualizations using the CSV data
+  # Create multiple Seaborn visualizations using the CSV data
     plots = []
-
 
     img_bytes_list = []
     
-    for _ in range(4):  # Create 4 different plots
-        fig, ax = plt.subplots(2, 2, figsize=(6, 4))
+    # Create a single 2 by 2 grid
+    fig, axes = plt.subplots(2, 2, figsize=(15, 12))
+    fig.suptitle('Revenue Distribution by Retailer')
 
-        if len(plots) == 0:
-            fig.suptitle('Revenue Distribution by Retailer')
+    # Choose a different seaborn plot type for each subplot
+    plot = sns.violinplot(ax=axes[0, 0], data=transactions_df, x='Stock Ticker of Retailer', y='Transaction Amount')
+    plots.append(plot)
 
-        # Choose a different seaborn plot type for each iteration
-        if len(plots) == 0:
-            plot = sns.violinplot(ax=ax[0,0], data=transactions_df, x='Stock Ticker of Retailer', y='Transaction Amount')
-        elif len(plots) == 1:
-            plot = sns.scatterplot(ax=ax[0,1], data=transactions_df, x='Stock Ticker of Retailer', y='Transaction Amount')
-        elif len(plots) == 2:
-            plot = sns.barplot(ax=ax[1,0], data=transactions_df, x='Stock Ticker of Retailer', y='Transaction Amount')
-        else:
-            plot = sns.boxplot(ax=ax[1,1], data=transactions_df, x='Stock Ticker of Retailer', y='Transaction Amount')
+    plot = sns.scatterplot(ax=axes[0, 1], data=transactions_df, x='Stock Ticker of Retailer', y='Transaction Amount')
+    plots.append(plot)
 
-        plots.append(plot)
+    plot = sns.barplot(ax=axes[1, 0], data=transactions_df, x='Stock Ticker of Retailer', y='Transaction Amount')
+    plots.append(plot)
 
-        img_bytes = BytesIO()
-        fig.savefig(img_bytes, format='png')
-        img_bytes.seek(0)
-        # Encode the image bytes as base64
-        img_bytes_list.append(base64.b64encode(img_bytes.read()).decode('utf-8'))
+    plot = sns.boxplot(ax=axes[1, 1], data=transactions_df, x='Stock Ticker of Retailer', y='Transaction Amount')
+    plots.append(plot)
 
-        print(plots)
+    # Save the single 2 by 2 grid to BytesIO object
+    img_bytes = BytesIO()
+    fig.savefig(img_bytes, format='png')
+    img_bytes.seek(0)
+    # Encode the image bytes as base64
+    img_bytes_list.append(base64.b64encode(img_bytes.read()).decode('utf-8'))
 
-
-    # Render the HTML template with the list of embedded images
+    plt.close(fig)
     return render_template('dashboard.html', img_bytes_list=img_bytes_list)
 
 if __name__ == '__main__':
