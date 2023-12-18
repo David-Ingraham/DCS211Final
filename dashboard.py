@@ -21,7 +21,7 @@ def login():
         # Dummy authentication (replace with a proper authentication mechanism)
         if username == correct_username and password == correct_password:
             # Redirect to the dashboard page if authentication is successful
-            return redirect(url_for('dashboard.html'))
+            return redirect(url_for('dashboard'))
 
     # Render the login page
     return render_template('login.html')
