@@ -12,7 +12,17 @@ correct_username = "user"
 correct_password = "password"
 
 @app.route('/', methods=['GET', 'POST'])
-def login():
+def login() -> str:
+    """
+    Handles user authentication based on form data and redirects to the dashboard on success.
+
+    Returns:
+    str: HTML content for the login page or a redirect to the dashboard.
+
+    Example:
+    >>> login()
+    '<html>...</html>'
+    """
     if request.method == 'POST':
         # Get the form data
         username = request.form['username']
@@ -27,18 +37,25 @@ def login():
     return render_template('login.html')
 
 @app.route('/dashboard')
-def dashboard():
+def dashboard() -> str:
+    """
+    Generates a dashboard with Seaborn visualizations using transaction data from a CSV file.
+
+    Returns:
+    str: HTML content for the dashboard.
+
+    Example:
+    >>> dashboard()
+    '<html>...</html>'
+    """
     csv_path = 'resources/transactions.csv'
     transactions_df = pd.read_csv(csv_path)
 
-    
-
     # Create multiple Seaborn visualizations using the CSV data
-  # Create multiple Seaborn visualizations using the CSV data
     plots = []
 
     img_bytes_list = []
-    
+
     # Create a single 2 by 2 grid
     fig, axes = plt.subplots(2, 2, figsize=(15, 12))
     fig.suptitle('Revenue Distribution by Retailer')
